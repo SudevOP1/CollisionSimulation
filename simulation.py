@@ -71,11 +71,11 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
     writer = csv.writer(file)
     if SAVE_KE_AND_P:
         ke, p = get_ke_and_p([[M1, V1], [M2, V2]])
-        writer.writerow(["v1", "v2", "t", "ke", "p", "m1", "m2"])
-        writer.writerow([V1, V2, 0, ke, p, M1, M2])
+        writer.writerow(["v1", "v2", "time", "ke", "p", "m1", "m2", "width"])
+        writer.writerow([V1, V2, 0, ke, p, M1, M2, edge_r-edge_l])
     else:
-        writer.writerow(["v1", "v2", "t", "m1", "m2"])
-        writer.writerow([V1, V2, 0, M1, M2])
+        writer.writerow(["v1", "v2", "t", "m1", "m2", "width"])
+        writer.writerow([V1, V2, 0, M1, M2, edge_r-edge_l]) # (width in pixels)
 
     def update_stuff():
         global objs, collision_count
@@ -83,7 +83,7 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
         for obj in objs:
             
             # update positions
-            obj["rect"].centerx += obj["v"] * dt
+            obj["rect"].centerx += obj["v"] * dt * TIME_PLAYBACK_SPEED
             
             # check edges
             if obj["rect"].left < edge_l:
@@ -143,13 +143,20 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
             py.draw.rect(window, obj["color"], obj["rect"])
         
         # text
+        s = get_seconds_passed()
+        time_string = (
+            f"{int(s)} seconds"
+            if s < 60
+            else
+            f"{int(s//60):02}:{int(s%60):02}"
+        )
         text_surfs = [
             font.render(f"m1 = {objs[0]["m"]}", True, objs[0]["color"]),
             font.render(f"v1 = {objs[0]["v"]}", True, objs[0]["color"]),
             font.render(f"m2 = {objs[1]["m"]}", True, objs[1]["color"]),
             font.render(f"v2 = {objs[1]["v"]}", True, objs[1]["color"]),
             font.render(f"Collisions = {collision_count}", True, WALL_COLOR),
-            font.render(f"Time = {int(get_seconds_passed())} s", True, WALL_COLOR),
+            font.render(time_string, True, WALL_COLOR),
         ]
         text_rects = [
             (FONT_XPAD, FONT_YPAD),
@@ -157,7 +164,7 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
             (WINDOW_WIDTH - FONT_XPAD - text_surfs[2].get_width(), FONT_YPAD),
             (WINDOW_WIDTH - FONT_XPAD - text_surfs[3].get_width(), 2 * FONT_YPAD + text_surfs[2].get_height()),
             (WINDOW_WIDTH // 2 - text_surfs[4].get_width() // 2, FONT_YPAD),
-            (WINDOW_WIDTH // 2 - text_surfs[4].get_width() // 2, 2 * FONT_YPAD + text_surfs[4].get_height()),
+            (WINDOW_WIDTH // 2 - text_surfs[5].get_width() // 2, 2 * FONT_YPAD + text_surfs[5].get_height()),
         ]
         for surf, rect in zip(text_surfs, text_rects):
             window.blit(surf, rect)
@@ -174,7 +181,9 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
 
         if not paused:
             update_stuff()
-            elapsed_time += dt
+            elapsed_time += dt * TIME_PLAYBACK_SPEED
+            if END_SIMULATION_AT > 0 and elapsed_time >= END_SIMULATION_AT:
+                running = False
         draw_stuff()
 
         py.display.flip()

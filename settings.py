@@ -26,12 +26,18 @@ FONT_SIZE = 24
 FONT_XPAD = 20
 FONT_YPAD = 5
 
+# for logs
+TIME_PLAYBACK_SPEED = 1
+END_SIMULATION_AT = -1 # auto stop after n seconds (put -1 to disable)
+LOGS_FILENAME = "logs"
+SAVE_KE_AND_P = True
+ROUND_DIGITS = 4
+
+# sound
+PLAY_COLLISION_SOUND = True
+COLLISION_SOUND_FILENAME = "3b1b_clack_sound.mp3" # https://www.3blue1brown.com/lessons/clacks-via-light
+
 # others
 PAUSED_AT_START = True
 LARGE_MASS_ON_RIGHT = True
-PLAY_COLLISION_SOUND = True
-SAVE_KE_AND_P = True
-ROUND_DIGITS = 4
-LOGS_FILENAME = "logs"
-COLLISION_SOUND_FILENAME = "3b1b_clack_sound.mp3" # https://www.3blue1brown.com/lessons/clacks-via-light
 
