@@ -7,6 +7,7 @@ edge_l = WALL_BORDER_PADDING + WALL_WIDTH
 edge_r = WINDOW_WIDTH - WALL_BORDER_PADDING - WALL_WIDTH
 l_wall_rect = py.Rect(edge_l - WALL_WIDTH, INITIAL_CENTER_Y - WALL_HEIGHT // 2, WALL_WIDTH, WALL_HEIGHT)
 r_wall_rect = py.Rect(edge_r, INITIAL_CENTER_Y - WALL_HEIGHT // 2, WALL_WIDTH, WALL_HEIGHT)
+collision_count = 0
 
 # swap if needed
 if (LARGE_MASS_ON_RIGHT and M2 < M1) or ((not LARGE_MASS_ON_RIGHT) and M1 > M2):
@@ -54,7 +55,7 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
     font = py.font.SysFont(FONT, FONT_SIZE)
 
     def update_stuff():
-        global objs
+        global objs, collision_count
 
         for obj in objs:
             
@@ -71,6 +72,7 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
 
         # objs collision
         if objs[0]["rect"].right >= objs[1]["rect"].left:
+            collision_count += 1
             
             # move objects away
             diff = abs(objs[0]["rect"].right - objs[1]["rect"].left)
@@ -115,12 +117,14 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
             font.render(f"v1 = {objs[0]["v"]}", True, objs[0]["color"]),
             font.render(f"m2 = {objs[1]["m"]}", True, objs[1]["color"]),
             font.render(f"v2 = {objs[1]["v"]}", True, objs[1]["color"]),
+            font.render(f"Collisions = {collision_count}", True, WALL_COLOR),
         ]
         text_rects = [
             (FONT_XPAD, FONT_YPAD),
             (FONT_XPAD, 2 * FONT_YPAD + text_surfs[0].get_height()),
             (WINDOW_WIDTH - FONT_XPAD - text_surfs[2].get_width(), FONT_YPAD),
             (WINDOW_WIDTH - FONT_XPAD - text_surfs[3].get_width(), 2 * FONT_YPAD + text_surfs[2].get_height()),
+            (WINDOW_WIDTH // 2 - text_surfs[4].get_width() // 2, FONT_YPAD),
         ]
         for surf, rect in zip(text_surfs, text_rects):
             window.blit(surf, rect)
