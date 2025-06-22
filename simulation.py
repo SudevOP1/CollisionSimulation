@@ -42,27 +42,40 @@ objs = [{
     }
 ]
 
+py.init()
+window = py.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+clock = py.time.Clock()
+running = True
+dt = 0
+py.font.init()
+py.mixer.init()
+font = py.font.SysFont(FONT, FONT_SIZE)
+collision_sound = py.mixer.Sound(COLLISION_SOUND_FILENAME)
+
+def get_ke_and_p(bodies):
+    ke = 0
+    p = 0
+    for m, v in bodies:
+        ke += m*v*v/2
+        p += m*v
+    return ke, p
+
+def get_seconds_passed():
+    global elapsed_time
+    return round(elapsed_time, ROUND_DIGITS)
+
+def play_collision_sound():
+    if PLAY_COLLISION_SOUND: collision_sound.play()
+
 with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
     writer = csv.writer(file)
-    writer.writerow(["v1", "v2", "t", "m1", "m2"])
-    writer.writerow([V1, V2, 0, M1, M2])
-
-    py.init()
-    window = py.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    clock = py.time.Clock()
-    running = True
-    dt = 0
-    py.font.init()
-    py.mixer.init()
-    font = py.font.SysFont(FONT, FONT_SIZE)
-    collision_sound = py.mixer.Sound(COLLISION_SOUND_FILENAME)
-
-    def get_seconds_passed():
-        global elapsed_time
-        return round(elapsed_time, ROUND_DIGITS)
-
-    def play_collision_sound():
-        if PLAY_COLLISION_SOUND: collision_sound.play()
+    if SAVE_KE_AND_P:
+        ke, p = get_ke_and_p([[M1, V1], [M2, V2]])
+        writer.writerow(["v1", "v2", "t", "ke", "p", "m1", "m2"])
+        writer.writerow([V1, V2, 0, ke, p, M1, M2])
+    else:
+        writer.writerow(["v1", "v2", "t", "m1", "m2"])
+        writer.writerow([V1, V2, 0, M1, M2])
 
     def update_stuff():
         global objs, collision_count
@@ -107,9 +120,14 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
             objs[0]["v"] = new_v1
             objs[1]["v"] = new_v2
 
-            # log new velocities
+            # update logs
             time = get_seconds_passed()
-            writer.writerow([new_v1, new_v2, time])
+            ke, p = get_ke_and_p([
+                [objs[0]["m"], objs[0]["v"]],
+                [objs[1]["m"], objs[1]["v"]],
+            ])
+            if SAVE_KE_AND_P: writer.writerow([new_v1, new_v2, time, ke, p])
+            else: writer.writerow([new_v1, new_v2, time])
 
     def draw_stuff():
         
@@ -148,7 +166,10 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
         for event in py.event.get():
             if event.type == py.QUIT:
                 running = False
-            elif event.type == py.MOUSEBUTTONDOWN and event.button == 1:
+            elif (
+                (event.type == py.MOUSEBUTTONDOWN and event.button == 1)
+                or (event.type == py.KEYDOWN and event.key == py.K_SPACE)
+            ):
                 paused = not paused
 
         if not paused:
