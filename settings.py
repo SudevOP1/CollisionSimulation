@@ -1,5 +1,5 @@
 # objects
-M1 = 80
+M1 = 70
 M2 = 20
 V1 = 500 # pixels per second
 V2 = 800 # pixels per second
@@ -22,13 +22,15 @@ INITIAL_CENTER_Y = WINDOW_HEIGHT // 2 + 50
 
 # font
 FONT = "Comic Sans MS"
-FONT_SIZE = 48
+FONT_SIZE = 24
 FONT_XPAD = 20
 FONT_YPAD = 5
 
 # others
 PAUSED_AT_START = True
 LARGE_MASS_ON_RIGHT = True
+PLAY_COLLISION_SOUND = True
 ROUND_DIGITS = 4
 LOGS_FILENAME = "logs"
+COLLISION_SOUND_FILENAME = "3b1b_clack_sound.mp3" # https://www.3blue1brown.com/lessons/clacks-via-light
 

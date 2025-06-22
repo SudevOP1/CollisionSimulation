@@ -8,6 +8,7 @@ edge_r = WINDOW_WIDTH - WALL_BORDER_PADDING - WALL_WIDTH
 l_wall_rect = py.Rect(edge_l - WALL_WIDTH, INITIAL_CENTER_Y - WALL_HEIGHT // 2, WALL_WIDTH, WALL_HEIGHT)
 r_wall_rect = py.Rect(edge_r, INITIAL_CENTER_Y - WALL_HEIGHT // 2, WALL_WIDTH, WALL_HEIGHT)
 collision_count = 0
+elapsed_time = 0
 
 # swap if needed
 if (LARGE_MASS_ON_RIGHT and M2 < M1) or ((not LARGE_MASS_ON_RIGHT) and M1 > M2):
@@ -52,7 +53,16 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
     running = True
     dt = 0
     py.font.init()
+    py.mixer.init()
     font = py.font.SysFont(FONT, FONT_SIZE)
+    collision_sound = py.mixer.Sound(COLLISION_SOUND_FILENAME)
+
+    def get_seconds_passed():
+        global elapsed_time
+        return round(elapsed_time, ROUND_DIGITS)
+
+    def play_collision_sound():
+        if PLAY_COLLISION_SOUND: collision_sound.play()
 
     def update_stuff():
         global objs, collision_count
@@ -66,13 +76,16 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
             if obj["rect"].left < edge_l:
                 obj["rect"].left = edge_l
                 obj["v"] *= -1
+                play_collision_sound()
             elif obj["rect"].right > edge_r:
                 obj["rect"].right = edge_r
                 obj["v"] *= -1
+                play_collision_sound()
 
         # objs collision
         if objs[0]["rect"].right >= objs[1]["rect"].left:
             collision_count += 1
+            play_collision_sound()
             
             # move objects away
             diff = abs(objs[0]["rect"].right - objs[1]["rect"].left)
@@ -95,7 +108,7 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
             objs[1]["v"] = new_v2
 
             # log new velocities
-            time = round(py.time.get_ticks() / 1000, ROUND_DIGITS)
+            time = get_seconds_passed()
             writer.writerow([new_v1, new_v2, time])
 
     def draw_stuff():
@@ -118,6 +131,7 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
             font.render(f"m2 = {objs[1]["m"]}", True, objs[1]["color"]),
             font.render(f"v2 = {objs[1]["v"]}", True, objs[1]["color"]),
             font.render(f"Collisions = {collision_count}", True, WALL_COLOR),
+            font.render(f"Time = {int(get_seconds_passed())} s", True, WALL_COLOR),
         ]
         text_rects = [
             (FONT_XPAD, FONT_YPAD),
@@ -125,6 +139,7 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
             (WINDOW_WIDTH - FONT_XPAD - text_surfs[2].get_width(), FONT_YPAD),
             (WINDOW_WIDTH - FONT_XPAD - text_surfs[3].get_width(), 2 * FONT_YPAD + text_surfs[2].get_height()),
             (WINDOW_WIDTH // 2 - text_surfs[4].get_width() // 2, FONT_YPAD),
+            (WINDOW_WIDTH // 2 - text_surfs[4].get_width() // 2, 2 * FONT_YPAD + text_surfs[4].get_height()),
         ]
         for surf, rect in zip(text_surfs, text_rects):
             window.blit(surf, rect)
@@ -138,6 +153,7 @@ with open(f"{LOGS_FILENAME}.csv", "w", newline="") as file:
 
         if not paused:
             update_stuff()
+            elapsed_time += dt
         draw_stuff()
 
         py.display.flip()
