@@ -1,0 +1,34 @@
+# objects
+M1 = 80
+M2 = 20
+V1 = 500 # pixels per second
+V2 = 800 # pixels per second
+
+# colors
+BG_COLOR = "#060023"
+M1_COLOR = "#FF7B00"
+M2_COLOR = "#008CFF"
+WALL_COLOR = "#C4EDFF"
+
+# lengths
+WINDOW_WIDTH  = 1280
+WINDOW_HEIGHT = 720
+LARGE_M_SIDE_LEN = 50
+SMALL_M_SIDE_LEN = 20
+WALL_WIDTH  = 10
+WALL_HEIGHT = 400
+WALL_BORDER_PADDING = 150
+INITIAL_CENTER_Y = WINDOW_HEIGHT // 2 + 50
+
+# font
+FONT = "Comic Sans MS"
+FONT_SIZE = 48
+FONT_XPAD = 20
+FONT_YPAD = 5
+
+# others
+PAUSED_AT_START = True
+LARGE_MASS_ON_RIGHT = True
+ROUND_DIGITS = 4
+LOGS_FILENAME = "logs"
+
