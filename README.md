@@ -1,6 +1,6 @@
 # CollisionSimulation
 
-A 2D physics simulation that visually demonstrates elastic collisions between two blocks of different masses. Designed to explore momentum, energy conservation, and Pi approximation concepts.
+A 2D physics simulation that visually demonstrates elastic collisions between two blocks of different masses. Designed to explore momentum, energy conservation, and Pi approximation concepts.<br>
 <br>
 
 ## 💡 What it does
